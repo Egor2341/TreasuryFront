@@ -25,7 +25,7 @@ export const RegisterPage = () => {
           <input type="text" id="password" className={styles.inputField} />
         </div>
         <button className={styles.btn}>
-          Зарегистрироваться
+          Создать личный кабинет
         </button>
       </div>
     </>
