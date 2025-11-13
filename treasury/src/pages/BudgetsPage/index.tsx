@@ -1,6 +1,8 @@
 import styles from "./style.module.css"
 import React, { useState } from "react"
 import { FaEdit } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { MdOutlineExitToApp} from "react-icons/md"
 
 interface ListItem {
   id: number
@@ -32,7 +34,14 @@ export const BudgetsPage = () => {
     { id: 8, title: "Ноябрь 2025", summ: "10000.00" }
   ]
 
+  const navigate = useNavigate()
+
+  const handleButtonClick = () => {
+    navigate("/welcome")
+  }
+
   return (
+    <>
     <div className={styles.page}>
       <h1>Бюджет</h1>
       <div className={styles.main}>
@@ -113,5 +122,9 @@ export const BudgetsPage = () => {
         </div>
       </div>
     </div>
+    <button className={styles.btn_exit} onClick={handleButtonClick}>
+        <MdOutlineExitToApp size={40} />
+      </button>
+    </>
   )
 }

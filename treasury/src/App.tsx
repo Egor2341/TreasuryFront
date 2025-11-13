@@ -6,6 +6,7 @@ import { MainPage } from "./pages/MainPage"
 import { ExpencesPage } from "./pages/ExpencesPage"
 import { IncomesPage } from "./pages/IncomesPage"
 import { BudgetsPage } from "./pages/BudgetsPage"
+import { CategoriesPage } from "./pages/CategoriesPage"
 
 export const App = () => {
   return (
@@ -18,6 +19,7 @@ export const App = () => {
         <Route path="/expences" element={<ExpencesPage />} />
         <Route path="/incomes" element={<IncomesPage />} />
         <Route path="/budgets" element={<BudgetsPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
       </Routes>
     </BrowserRouter>
   )
