@@ -5,6 +5,7 @@ import { RegisterPage } from "./pages/RegisterPage"
 import { MainPage } from "./pages/MainPage"
 import { ExpencesPage } from "./pages/ExpencesPage"
 import { IncomesPage } from "./pages/IncomesPage"
+import { BudgetsPage } from "./pages/BudgetsPage"
 
 export const App = () => {
   return (
@@ -16,6 +17,7 @@ export const App = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/expences" element={<ExpencesPage />} />
         <Route path="/incomes" element={<IncomesPage />} />
+        <Route path="/budgets" element={<BudgetsPage />} />
       </Routes>
     </BrowserRouter>
   )

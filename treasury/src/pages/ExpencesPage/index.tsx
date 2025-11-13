@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom"
 interface ListItem {
   id: number
   title: string
-  summ: string // или number, если хотите хранить как число
+  summ: string 
 }
 
 export const ExpencesPage = () => {
@@ -18,8 +18,6 @@ export const ExpencesPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-
-    // Проверяем валидность формата
     if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
       setValue(value)
     }
