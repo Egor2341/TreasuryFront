@@ -124,3 +124,12 @@
     margin-right: 2%;
     border-radius: 10%;
 }
+
+.scroll {
+    height: 300px; 
+    width: 80%;
+    overflow-y: auto; 
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}

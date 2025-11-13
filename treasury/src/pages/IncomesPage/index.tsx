@@ -81,6 +81,7 @@ export const IncomesPage = () => {
               <h1>Доходы за месяц</h1>
               <h1>{total}</h1>
             </div>
+            <div className={styles.scroll}>
             {items.map((item) => (
               <div key={item.id} className={styles.category}>
                 <h1>{item.title}</h1>
@@ -100,6 +101,7 @@ export const IncomesPage = () => {
                 </button>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>

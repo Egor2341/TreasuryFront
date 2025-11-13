@@ -1,5 +1,5 @@
 .page {
-    width: 100;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -7,7 +7,7 @@
 }
 
 .main {
-    width: 100;
+    width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -123,4 +123,11 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;
+}
+
+.btn_exit {
+    height: 10%;
+    margin-top: 2%;
+    margin-right: 2%;
+    border-radius: 10%;
 }
