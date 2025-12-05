@@ -1,26 +1,64 @@
 import { NavLink } from "react-router-dom"
 import styles from "./style.module.css"
+import authService from "../../api/authService"
+import type { LoginCredentials } from "../../types/auth"
+import {useState} from 'react'
+
 
 export const LoginPage = () => {
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: "",
+    password: "",
+  })
+  const [error, setError] = useState<string>('');
+
+  const handleButtonClick = async () => {
+    setError('');
+    try {
+      await authService.login(credentials)
+      window.location.href = "/main";
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else if (typeof err === 'string') {
+        setError(err);
+      } else {
+        setError('Login failed');
+      }
+      console.log('Error:', err);
+    }
+  }
+
   return (
     <>
       <div className={styles.main}>
-        <h1>Вход в личный кабинет</h1>  
+        <h1>Вход в личный кабинет</h1>
         <div>
           <label htmlFor="email" className={styles.label}>
             Email
           </label>
-          <input type="text" id="email" className={styles.inputField} />
+          <input
+            type="text"
+            value={credentials.email}
+            onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+            id="email"
+            className={styles.inputField}
+          />
         </div>
         <div>
           <label htmlFor="password" className={styles.label}>
             Пароль
           </label>
-          <input type="text" id="password" className={styles.inputField} />
+          <input
+            type="text"
+            value={credentials.password}
+            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            id="password"
+            className={styles.inputField}
+          />
         </div>
-        <button className={styles.btn}>
-          Войти
-        </button>
+        {error && <div className="error">{error}</div>}
+        <button className={styles.btn} onClick={handleButtonClick}>Войти</button>
         <span>Впервые в Соковищнице?</span>
         <NavLink to="/register" className={styles.register}>
           Создайте аккаунт

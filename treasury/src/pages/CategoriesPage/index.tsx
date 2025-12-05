@@ -1,31 +1,25 @@
 import styles from "./style.module.css"
 import { MdDelete } from "react-icons/md"
 import { FaEdit } from "react-icons/fa"
-import { useNavigate } from "react-router-dom"
 import { MdOutlineExitToApp } from "react-icons/md"
+import { useCategories } from "../../hooks/useCategories"
+import authService from "../../api/authService"
 
-interface ListItem {
-  id: number
-  title: string
-  summ: string
-}
 
 export const CategoriesPage = () => {
-  const items: ListItem[] = [
-    { id: 1, title: "Интернет", summ: "1800.00" },
-    { id: 2, title: "Интернет", summ: "1500.00" },
-    { id: 3, title: "Интернет", summ: "10000.00" },
-    { id: 4, title: "Интернет", summ: "10000.00" },
-    { id: 5, title: "Интернет", summ: "10000.00" },
-    { id: 6, title: "Интернет", summ: "10000.00" },
-    { id: 7, title: "Интернет", summ: "10000.00" },
-    { id: 8, title: "Интернет", summ: "10000.00" },
-  ]
 
-  const navigate = useNavigate()
+  const { categories, loading, error } = useCategories();
 
   const handleButtonClick = () => {
-    navigate("/welcome")
+    authService.logout();
+  }
+
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
+
+  if (error) {
+    return <div style={{ color: 'red' }}>{error}</div>;
   }
 
   return (
@@ -42,9 +36,9 @@ export const CategoriesPage = () => {
               <button className={styles.left_btn}>Добавить</button>
             </div>
             <div className={styles.scroll}>
-              {items.map((item) => (
-                <div key={item.id} className={styles.category}>
-                  <h2>{item.title}</h2>
+              {categories.expenses.map((category, index) => (
+                <div key={index} className={styles.category}>
+                  <h2>{category}</h2>
                   <button className={styles.category_button}>
                     <FaEdit size={30} />
                   </button>
@@ -65,9 +59,9 @@ export const CategoriesPage = () => {
               <button className={styles.right_btn}>Добавить</button>
             </div>
             <div className={styles.scroll}>
-              {items.map((item) => (
-                <div key={item.id} className={styles.category}>
-                  <h2>{item.title}</h2>
+              {categories.incomes.map((category, index) => (
+                <div key={index} className={styles.category}>
+                  <h2>{category}</h2>
                   <button className={styles.category_button}>
                     <FaEdit size={30} />
                   </button>
