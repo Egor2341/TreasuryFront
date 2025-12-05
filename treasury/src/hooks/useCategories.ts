@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import type { ListCategories } from '../types/category';
 import categoryService from '../api/categoryService';
 
@@ -27,7 +26,7 @@ export function useCategories() {
           } else if (typeof err === 'string') {
             setError(err);
           } else {
-            setError('Gettin categories failed');
+            setError('Getting categories failed');
           }
           console.log('Error:', err);
     } finally {

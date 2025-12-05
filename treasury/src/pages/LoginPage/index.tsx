@@ -2,30 +2,31 @@ import { NavLink } from "react-router-dom"
 import styles from "./style.module.css"
 import authService from "../../api/authService"
 import type { LoginCredentials } from "../../types/auth"
-import {useState} from 'react'
-
+import { useState } from "react"
 
 export const LoginPage = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: "",
     password: "",
   })
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("")
 
   const handleButtonClick = async () => {
-    setError('');
-    try {
-      await authService.login(credentials)
-      window.location.href = "/main";
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else if (typeof err === 'string') {
-        setError(err);
-      } else {
-        setError('Login failed');
+    setError("")
+    if (credentials.password) {
+      try {
+        await authService.login(credentials);
+        window.location.href = "/main";
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message.includes("422") ? "Неверные данные" : "");
+        } else {
+          setError("Ошибка при попытке войти");
+        }
+        console.log("Error:", err);
       }
-      console.log('Error:', err);
+    } else {
+      setError("Пароль не может быть пустым");
     }
   }
 
@@ -58,7 +59,9 @@ export const LoginPage = () => {
           />
         </div>
         {error && <div className="error">{error}</div>}
-        <button className={styles.btn} onClick={handleButtonClick}>Войти</button>
+        <button className={styles.btn} onClick={handleButtonClick}>
+          Войти
+        </button>
         <span>Впервые в Соковищнице?</span>
         <NavLink to="/register" className={styles.register}>
           Создайте аккаунт

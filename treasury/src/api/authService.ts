@@ -43,28 +43,20 @@ class AuthService {
         },
       }
     );
-    
-    if (response.data.accessToken) {
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+    if (response.data.access_token) {
+      localStorage.setItem('accessToken', response.data.access_token);
+      localStorage.setItem('refreshToken', response.data.refresh_token);
     }
     
     return response.data;
   }
 
-  async register(userData: RegisterData): Promise<AuthResponse> {
-    const response = await axiosInstance.post<AuthResponse>(
+  async register(userData: RegisterData){
+    await axiosInstance.post<AuthResponse>(
       '/auth/register',
       userData
     );
-    
-    if (response.data.accessToken) {
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-    }
-    
-    return response.data;
-  }
+}
 
   logout(){
     localStorage.setItem('accessToken', "");

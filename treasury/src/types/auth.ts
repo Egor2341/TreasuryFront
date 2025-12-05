@@ -8,9 +8,9 @@ export interface RegisterData extends LoginCredentials {
 }
   
 export interface AuthResponse {
-    accessToken: string;
-    refreshToken: string;
-    tokenType: string;
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
 }
 
 export interface OAuth2LoginForm {
