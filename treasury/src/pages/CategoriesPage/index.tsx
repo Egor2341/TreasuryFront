@@ -10,12 +10,15 @@ import categoryService from "../../api/categoryService"
 export const CategoriesPage = () => {
   const { categories, loading, error } = useCategories()
   const [ecategory, setEcategory] = useState<string>("")
+  const [icategory, setIcategory] = useState<string>("")
   const [errorLabel, setErrorLabel] = useState<string>("")
   const [expenses, setExpenses] = useState<string[]>(categories.expenses)
+  const [incomes, setIncomes] = useState<string[]>(categories.incomes)
 
   useEffect(() => {
     if (categories) {
       setExpenses(categories.expenses)
+      setIncomes(categories.incomes)
     }
   }, [categories])
 
@@ -27,11 +30,12 @@ export const CategoriesPage = () => {
     return <div style={{ color: "red" }}>{error}</div>
   }
 
-  const handleAddExpenseButtonClick = async () => {
+  const addCategoryLogic = async (type: "expenses" | "incomes") => {
     setErrorLabel("")
-    if (ecategory) {
+    const cat = type === "expenses" ? ecategory : icategory
+    if (cat) {
       try {
-        await categoryService.addCategory({ name: ecategory, type: "expenses" })
+        await categoryService.addCategory({ name: cat, type: type })
         window.location.href = "/categories"
       } catch (err) {
         if (err instanceof Error) {
@@ -65,7 +69,12 @@ export const CategoriesPage = () => {
                 value={ecategory}
                 onChange={(e) => setEcategory(e.target.value)}
               />
-              <button className={styles.left_btn} onClick={handleAddExpenseButtonClick}>
+              <button
+                className={styles.left_btn}
+                onClick={async () => {
+                  await addCategoryLogic("expenses")
+                }}
+              >
                 Добавить
               </button>
             </div>
@@ -122,17 +131,61 @@ export const CategoriesPage = () => {
               <h1>Доходы</h1>
             </div>
             <div className={styles.add}>
-              <input type="text" className={styles.input} />
-              <button className={styles.right_btn}>Добавить</button>
+            <input
+                type="text"
+                className={styles.input}
+                value={icategory}
+                onChange={(e) => setIcategory(e.target.value)}
+              />              <button
+                className={styles.right_btn}
+                onClick={async () => {
+                  await addCategoryLogic("incomes")
+                }}
+              >
+                Добавить
+              </button>
             </div>
             <div className={styles.scroll}>
-              {categories.incomes.map((category, index) => (
+              {incomes.map((category, index) => (
                 <div key={index} className={styles.category}>
-                  <h2>{category}</h2>
-                  <button className={styles.category_button}>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={category}
+                    onChange={(e) => {
+                      setIncomes([...incomes.slice(0, index), e.target.value, ...incomes.slice(index + 1)])
+                    }}
+                  />
+                  <button
+                    className={styles.category_button}
+                    onClick={async () => {
+                      try {
+                        await categoryService.editCategory({
+                          old_name: categories.incomes[index],
+                          new_name: category,
+                          type: "incomes",
+                        })
+                        window.location.href = "/categories"
+                      } catch (err) {
+                        setErrorLabel("Ошибка при попытке обновить категорию")
+                        console.log("Error:", err)
+                      }
+                    }}
+                  >
                     <FaEdit size={30} />
                   </button>
-                  <button className={styles.category_button}>
+                  <button
+                    className={styles.category_button}
+                    onClick={async () => {
+                      try {
+                        await categoryService.deleteCategory({ name: category, type: "incomes" })
+                        window.location.href = "/categories"
+                      } catch (err) {
+                        setErrorLabel("Ошибка при попытке удалить категорию")
+                        console.log("Error:", err)
+                      }
+                    }}
+                  >
                     <MdDelete size={30} />
                   </button>
                 </div>
