@@ -18,7 +18,6 @@ export function useCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-
       setCategories(await categoryService.getCategories());
     } catch (err) {
         if (err instanceof Error) {

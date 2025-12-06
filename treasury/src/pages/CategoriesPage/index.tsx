@@ -177,7 +177,7 @@ export const CategoriesPage = () => {
                   <button
                     className={styles.category_button}
                     onClick={async () => {
-                      try {
+                      try {``
                         await categoryService.deleteCategory({ name: category, type: "incomes" })
                         window.location.href = "/categories"
                       } catch (err) {

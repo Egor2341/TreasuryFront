@@ -10,6 +10,10 @@
     display: flex;
 }
 
+.text_center{
+    text-align: center;
+}
+
 .search {
     background: linear-gradient(#BDC1C6, #B9BABC);
     box-shadow: 0px 37.5px 75px rgba(0, 0, 0, 0.25);
@@ -102,7 +106,7 @@
 .category {
     align-items: center;
     margin-top: 2%;
-    background: white;
+    background: transparent;
     border-radius: 8%;
     padding-left: 10%;
     padding-right: 10%;
