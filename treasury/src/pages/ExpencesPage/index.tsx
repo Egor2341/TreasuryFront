@@ -1,5 +1,5 @@
 import styles from "./style.module.css"
-import React, { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
 import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
 import type { ListItems } from "../../types/item"
@@ -42,12 +42,6 @@ export const ExpencesPage = () => {
     }
   }, [isPosting])
 
-  useEffect(() => {
-    if (isSearch) {
-      update()
-    }
-  }, [isSearch])
-
   const update = async () => {
     setErrorLabel("")
     try {
@@ -64,15 +58,28 @@ export const ExpencesPage = () => {
     }
   }
 
-  const fetchResult = async () => {
+  const fetchSearch = useCallback(async () => {
+    setErrorLabel("")
     try {
-      setErrorLabel("")
-      setSearchResult((await itemService.getSearch("/expenses", title, year, month)).value)
+      setSearchResult(
+        (
+          await itemService.getSearch("/expenses", title, year, month).then((v) => {
+            setSearch(false)
+            return v
+          })
+        ).value
+      )
     } catch (err) {
       setErrorLabel("Поиск не удался")
       console.log("Error:", err)
     }
-  }
+  }, [title, year, month])
+
+  useEffect(() => {
+    if (isSearch) {
+      fetchSearch()
+    }
+  }, [isSearch, fetchSearch])
 
   const fetchItems = async () => {
     try {
@@ -156,7 +163,7 @@ export const ExpencesPage = () => {
                 </select>
               </div>
             </div>
-            <button className={styles.btn} onClick={fetchResult}>
+            <button className={styles.btn} onClick={() => setSearch(true)}>
               Найти
             </button>
             <h2>Результат: {searchResult}</h2>
@@ -165,7 +172,6 @@ export const ExpencesPage = () => {
           <div className={styles.info}>
             <div className={styles.add}>
               <select
-                name="selectedCategory"
                 className={styles.list}
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
@@ -187,7 +193,6 @@ export const ExpencesPage = () => {
                 className={styles.input}
               />
               <button
-                type="submit"
                 className={styles.btn}
                 onClick={async () => {
                   if (categoryName) {

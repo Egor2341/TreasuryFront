@@ -1,83 +1,185 @@
 import styles from "./style.module.css"
-import React, { useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { FaEdit } from "react-icons/fa"
-import { useNavigate } from "react-router-dom"
 import { MdOutlineExitToApp } from "react-icons/md"
-
-interface ListItem {
-  id: number
-  title: string
-  summ: string
-}
+import type { Budget, ListBudgets, budgetType } from "../../types/budget"
+import budgetService from "../../api/budgetService"
+import authService from "../../api/authService"
 
 export const BudgetsPage = () => {
-  const date = "Ноябрь 2025"
-  const summ = "4500.00"
+  const monthNames = useMemo(
+    () => [
+      "Январь",
+      "Февраль",
+      "Март",
+      "Апрель",
+      "Май",
+      "Июнь",
+      "Июль",
+      "Август",
+      "Сентябрь",
+      "Октябрь",
+      "Ноябрь",
+      "Декабрь",
+    ],
+    []
+  )
+  const [errorLabel, setErrorLabel] = useState<string>("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [budgets, setBudgets] = useState<ListBudgets>({ real: [], theory: [] })
+  const [real, setReal] = useState<Budget[]>([])
+  const [theory, setTheory] = useState<Budget[]>([])
+  const [curReal, setCurReal] = useState<Budget>({
+    type: "real",
+    month: monthNames[new Date().getMonth()],
+    year: new Date().getFullYear(),
+    value: "0",
+  })
+  const [curTheory, setCurTheory] = useState<Budget>({
+    type: "theory",
+    month: monthNames[new Date().getMonth()],
+    year: new Date().getFullYear(),
+    value: "0",
+  })
+  const [searchYearReal, setSearchYearReal] = useState<number>(0)
+  const [searchYearTheory, setSearchYearTheory] = useState<number>(0)
+  const [isSearhReal, setSearchReal] = useState<boolean>(false)
+  const [isSearhTheory, setSearchTheory] = useState<boolean>(false)
+  const [isUpdate, setUpdate] = useState<boolean>(false)
+  const [theoryValue, setTheoryValue] = useState<string>("")
 
-  const [value, setValue] = useState("")
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
-      setValue(value)
+  const fetchBudgets = useCallback(async () => {
+    try {
+      setLoading(true)
+      await budgetService
+        .editBudget({
+          type: "real",
+          month: monthNames[new Date().getMonth()],
+          year: new Date().getFullYear(),
+          value: 0,
+        })
+        .then(async () => setBudgets(await budgetService.getBudgets()))
+    } catch (err) {
+      setError("Не удалось загрузить страницу")
+      console.log("Error:", err)
+    } finally {
+      setLoading(false)
     }
+  }, [monthNames])
+
+  useEffect(() => {
+    fetchBudgets()
+  }, [fetchBudgets])
+
+  useEffect(() => {
+    if (budgets.real.length > 0 && budgets.theory.length > 0) {
+      setReal(budgets.real)
+      setTheory(budgets.theory)
+      setCurReal(budgets.real[0])
+      setCurTheory(budgets.theory[0])
+      setTheoryValue(budgets.theory[0].value)
+    }
+  }, [budgets])
+
+  const search = useCallback(
+    async (type: budgetType) => {
+      if (type == "real") {
+        setReal(
+          await budgetService.getSearch(type, searchYearReal).then((v) => {
+            setSearchReal(false)
+            return v.budgets
+          })
+        )
+      } else {
+        setTheory(
+          await budgetService.getSearch(type, searchYearTheory).then((v) => {
+            setSearchTheory(false)
+            return v.budgets
+          })
+        )
+      }
+    },
+    [searchYearReal, searchYearTheory]
+  )
+
+  useEffect(() => {
+    if (isSearhReal) {
+      search("real")
+    }
+  }, [isSearhReal, search])
+
+  useEffect(() => {
+    if (isSearhTheory) {
+      search("theory")
+    }
+  }, [isSearhTheory, search])
+
+  const update = useCallback(async () => {
+    setErrorLabel("")
+    try {
+      await budgetService
+        .editBudget({
+          type: "theory",
+          month: monthNames[new Date().getMonth()],
+          year: new Date().getFullYear(),
+          value: parseFloat(theoryValue),
+        })
+        .then(() => setUpdate(false))
+    } catch (err) {
+      setErrorLabel("Не удалось изменить значение")
+      console.log(err)
+    }
+  }, [monthNames, theoryValue])
+
+  useEffect(() => {
+    if (isUpdate) {
+      update()
+    }
+  }, [isUpdate, update])
+
+  if (loading) {
+    return <div>Загрузка...</div>
   }
 
-  const items: ListItem[] = [
-    { id: 1, title: "Ноябрь 2025", summ: "1800.00" },
-    { id: 2, title: "Ноябрь 2025", summ: "1500.00" },
-    { id: 3, title: "Ноябрь 2025", summ: "10000.00" },
-    { id: 4, title: "Ноябрь 2025", summ: "10000.00" },
-    { id: 5, title: "Ноябрь 2025", summ: "10000.00" },
-    { id: 6, title: "Ноябрь 2025", summ: "10000.00" },
-    { id: 7, title: "Ноябрь 2025", summ: "10000.00" },
-    { id: 8, title: "Ноябрь 2025", summ: "10000.00" },
-  ]
-
-  const navigate = useNavigate()
-
-  const handleButtonClick = () => {
-    navigate("/welcome")
+  if (error) {
+    return <div style={{ color: "red" }}>{error}</div>
   }
 
   return (
     <>
       <div className={styles.page}>
         <h1>Бюджет</h1>
+        <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.part}>
             <h2>Реальный бюджет</h2>
             <div className={styles.left_total}>
               <div className={styles.part_total}>
-                <h2>{date}</h2>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={handleChange}
-                  placeholder={summ}
-                  className={styles.input}
-                  disabled={true}
-                />
-              </div>
-              <div className={styles.part_total}>
-                <h2>Редактировать</h2>
-                <button className={styles.left_btn}>
-                  <FaEdit size={30} />
-                </button>
+                <h2>{curReal.month + " " + curReal.year}</h2>
+                <h2>{curReal.value}</h2>
               </div>
             </div>
+
             <div className={styles.year}>
               <h2>Предыдущие месяцы</h2>
-              <h2>Год</h2>
-              <select name="selectedYear" className={styles.list}>
-                <option value="year">2025</option>
+              <select className={styles.list} onChange={(e) => setSearchYearReal(Number(e.target.value))}>
+                <option>Год</option>
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
+              <button className={styles.left_btn} onClick={() => setSearchReal(true)}>
+                Поиск
+              </button>
             </div>
             <div className={styles.scroll}>
-              {items.map((item) => (
-                <div key={item.id} className={styles.category}>
-                  <h2>{item.title}</h2>
-                  <h2>{item.summ}</h2>
+              {real.slice(1).map((item, index) => (
+                <div key={index} className={styles.category}>
+                  <h2>{item.month + " " + item.year}</h2>
+                  <h2>{item.value}</h2>
                 </div>
               ))}
             </div>
@@ -87,42 +189,57 @@ export const BudgetsPage = () => {
             <h2>Теоретический бюджет</h2>
             <div className={styles.right_total}>
               <div className={styles.part_total}>
-                <h2>{date}</h2>
+                <h2>{curTheory.month + " " + curTheory.year}</h2>
                 <input
                   type="text"
-                  value={value}
-                  onChange={handleChange}
-                  placeholder={summ}
+                  value={theoryValue}
+                  onChange={(e) => {
+                    if (/^\d*\.?\d{0,2}$/.test(e.target.value)) {
+                      setTheoryValue(e.target.value)
+                    }
+                  }}
+                  placeholder={"0.00"}
                   className={styles.input}
-                  disabled={true}
                 />
               </div>
               <div className={styles.part_total}>
                 <h2>Редактировать</h2>
-                <button className={styles.right_btn}>
+                <button className={styles.right_btn} onClick={() => setUpdate(true)}>
                   <FaEdit size={30} />
                 </button>
               </div>
             </div>
             <div className={styles.year}>
               <h2>Предыдущие месяцы</h2>
-              <h2>Год</h2>
-              <select name="selectedYear" className={styles.list}>
-                <option value="year">2025</option>
+              <select className={styles.list} onChange={(e) => setSearchYearTheory(Number(e.target.value))}>
+                <option>Год</option>
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
+              <button className={styles.left_btn} onClick={() => setSearchTheory(true)}>
+                Поиск
+              </button>
             </div>
             <div className={styles.scroll}>
-              {items.map((item) => (
-                <div key={item.id} className={styles.category}>
-                  <h2>{item.title}</h2>
-                  <h2>{item.summ}</h2>
+              {theory.slice(1).map((item, index) => (
+                <div key={index} className={styles.category}>
+                  <h2>{item.month + " " + item.year}</h2>
+                  <h2>{item.value}</h2>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
-      <button className={styles.btn_exit} onClick={handleButtonClick}>
+      <button
+        className={styles.btn_exit}
+        onClick={() => {
+          authService.logout()
+        }}
+      >
         <MdOutlineExitToApp size={40} />
       </button>
     </>

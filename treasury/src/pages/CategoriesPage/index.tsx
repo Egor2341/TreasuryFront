@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 import categoryService from "../../api/categoryService"
 
 export const CategoriesPage = () => {
-  const { categories, loading, error } = useCategories()
+  const { categories, loading, error, refetch } = useCategories()
   const [ecategory, setEcategory] = useState<string>("")
   const [icategory, setIcategory] = useState<string>("")
   const [errorLabel, setErrorLabel] = useState<string>("")
@@ -35,8 +35,11 @@ export const CategoriesPage = () => {
     const cat = type === "expenses" ? ecategory : icategory
     if (cat) {
       try {
-        await categoryService.addCategory({ name: cat, type: type })
-        window.location.href = "/categories"
+        await categoryService.addCategory({ name: cat, type: type }).then(() => {
+          setEcategory("")
+          setIcategory("")
+        })
+        refetch()
       } catch (err) {
         if (err instanceof Error) {
           if (err.message.includes("422")) {
@@ -98,7 +101,7 @@ export const CategoriesPage = () => {
                           new_name: category,
                           type: "expenses",
                         })
-                        window.location.href = "/categories"
+                        refetch()
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -112,7 +115,7 @@ export const CategoriesPage = () => {
                     onClick={async () => {
                       try {
                         await categoryService.deleteCategory({ name: category, type: "expenses" })
-                        window.location.href = "/categories"
+                        refetch()
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)
@@ -131,12 +134,13 @@ export const CategoriesPage = () => {
               <h1>Доходы</h1>
             </div>
             <div className={styles.add}>
-            <input
+              <input
                 type="text"
                 className={styles.input}
                 value={icategory}
                 onChange={(e) => setIcategory(e.target.value)}
-              />              <button
+              />{" "}
+              <button
                 className={styles.right_btn}
                 onClick={async () => {
                   await addCategoryLogic("incomes")
@@ -165,7 +169,7 @@ export const CategoriesPage = () => {
                           new_name: category,
                           type: "incomes",
                         })
-                        window.location.href = "/categories"
+                        refetch()
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -177,9 +181,9 @@ export const CategoriesPage = () => {
                   <button
                     className={styles.category_button}
                     onClick={async () => {
-                      try {``
+                      try {
                         await categoryService.deleteCategory({ name: category, type: "incomes" })
-                        window.location.href = "/categories"
+                        refetch()
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)

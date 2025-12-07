@@ -1,111 +1,280 @@
 import styles from "./style.module.css"
-import React, { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
 import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
-import { useNavigate } from "react-router-dom"
-
-interface ListItem {
-  id: number
-  title: string
-  summ: string 
-}
+import type { ListItems } from "../../types/item"
+import itemService from "../../api/itemService"
+import authService from "../../api/authService"
+import categoryService from "../../api/categoryService"
 
 export const IncomesPage = () => {
-  const searchResult = "18000.00"
-  const total = "100000.00"
+  const [items, setItems] = useState<ListItems>({
+    total: "0",
+    items: [],
+  })
 
-  const [value, setValue] = useState("")
+  const [title, setTitle] = useState("")
+  const [year, setYear] = useState(0)
+  const [month, setMonth] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [searchResult, setSearchResult] = useState("")
+  const [errorLabel, setErrorLabel] = useState<string>("")
+  const [categories, setCategories] = useState<string[]>([""])
+  const [categoryName, setCategoryName] = useState<string>("")
+  const [value, setValue] = useState<string>("")
+  const [isPosting, setPosting] = useState<boolean>(false)
+  const [isSearch, setSearch] = useState<boolean>(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-
-  
-    if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
+  const handleValue = (value: string) => {
+    if (/^\d*\.?\d{0,2}$/.test(value)) {
       setValue(value)
     }
   }
 
-  const items: ListItem[] = [
-    { id: 1, title: "Зарплата", summ: "1800.00" },
-    { id: 2, title: "Дивиденды", summ: "1500.00" },
-    { id: 3, title: "Проценты", summ: "10000.00" },
-  ]
+  useEffect(() => {
+    fetchItems()
+  }, [])
 
-  const navigate = useNavigate()
+  useEffect(() => {
+    if (isPosting) {
+      update()
+    }
+  }, [isPosting])
 
-  const handleButtonClick = () => {
-    navigate("/welcome")
+  const update = async () => {
+    setErrorLabel("")
+    try {
+      setItems(
+        await itemService.getItems("/incomes").then((v) => {
+          setPosting(false)
+          return v
+        })
+      )
+      setCategoryName("")
+      setValue("")
+    } catch (err) {
+      console.log("Error:", err)
+    }
+  }
+
+  const fetchSearch = useCallback(async () => {
+    setErrorLabel("")
+    try {
+      setSearchResult(
+        (
+          await itemService.getSearch("/incomes", title, year, month).then((v) => {
+            setSearch(false)
+            return v
+          })
+        ).value
+      )
+    } catch (err) {
+      setErrorLabel("Поиск не удался")
+      console.log("Error:", err)
+    }
+  }, [title, year, month])
+
+  useEffect(() => {
+    if (isSearch) {
+      fetchSearch()
+    }
+  }, [isSearch, fetchSearch])
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true)
+      setItems(await itemService.getItems("/incomes"))
+      setCategories((await categoryService.getCategories()).incomes)
+    } catch (err) {
+      setError("Не удалось загрузить страницу")
+      console.log("Error:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return <div>Загрузка...</div>
+  }
+
+  if (error) {
+    return <div style={{ color: "red" }}>{error}</div>
   }
 
   return (
     <>
       <div className={styles.page}>
         <h1>Доходы</h1>
+        <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>
-            <h1>Поиск по категории</h1>
+            <h1 className={styles.text_center}>Поиск по категории</h1>
 
-            <select name="selectedCategory" className={styles.category_list}>
-              <option value="food">Зарплата</option>
-              <option value="energy">Дивиденды</option>
-              <option value="internet">Проценты</option>
+            <select className={styles.category_list} onChange={(e) => setTitle(e.target.value)}>
+              <option>Выберите</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
 
             <h1>Период</h1>
             <div className={styles.period}>
               <div className={styles.periodpart}>
-                <h2>Год</h2>
-                <select name="selectedCategory" className={styles.list}>
-                  <option value="year">2025</option>
+                <select className={styles.list} onChange={(e) => setYear(Number(e.target.value))}>
+                  <option>Год</option>
+                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <h2>Месяц</h2>
-                <select name="selectedCategory" className={styles.list}>
-                  <option value="month">Все</option>
+                <select
+                  className={styles.list}
+                  onChange={(e) => {
+                    setMonth(e.target.value)
+                  }}
+                >
+                  <option>Месяц</option>
+                  {[
+                    "Все",
+                    "Январь",
+                    "Февраль",
+                    "Март",
+                    "Апрель",
+                    "Май",
+                    "Июнь",
+                    "Июль",
+                    "Август",
+                    "Сентябрь",
+                    "Октябрь",
+                    "Ноябрь",
+                    "Декабрь",
+                  ].map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
+            <button className={styles.btn} onClick={() => setSearch(true)}>
+              Найти
+            </button>
             <h2>Результат: {searchResult}</h2>
           </div>
 
           <div className={styles.info}>
             <div className={styles.add}>
-              <select name="selectedCategory" className={styles.list}>
-                <option value="category">Зарплата</option>
+              <select className={styles.list} value={categoryName} onChange={(e) => setCategoryName(e.target.value)}>
+                <option>Выберите</option>
+                {categories
+                  .filter((category) => !items.items.map((item) => item.name).includes(category))
+                  .map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
               </select>
-              <input type="text" value={value} onChange={handleChange} placeholder="0.00" className={styles.input} />
-              <button className={styles.btn}>Добавить</button>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => handleValue(e.target.value)}
+                placeholder="0.00"
+                className={styles.input}
+              />
+              <button
+                className={styles.btn}
+                onClick={async () => {
+                  if (categoryName) {
+                    try {
+                      await itemService
+                        .addItem("/incomes", { name: categoryName, value: value })
+                        .then(() => setPosting(true))
+                    } catch (err) {
+                      console.log(err)
+                      setErrorLabel("Ошибка при попытке добавить категорию")
+                    }
+                  }
+                }}
+              >
+                Добавить
+              </button>
             </div>
             <div className={styles.total}>
               <h1>Доходы за месяц</h1>
-              <h1>{total}</h1>
+              <h1>{items.total}</h1>
             </div>
             <div className={styles.scroll}>
-            {items.map((item) => (
-              <div key={item.id} className={styles.category}>
-                <h1>{item.title}</h1>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={handleChange}
-                  placeholder={item.summ}
-                  className={styles.input}
-                  disabled={true}
-                />
-                <button className={styles.category_button}>
-                  <FaEdit size={30} />
-                </button>
-                <button className={styles.category_button}>
-                  <MdDelete size={30} />
-                </button>
-              </div>
-            ))}
+              {items.items.map((item, index) => (
+                <div key={index} className={styles.category}>
+                  <h1>{item.name}</h1>
+                  <input
+                    type="text"
+                    value={item.value}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^\d*\.?\d{0,2}$/.test(value)) {
+                        setItems({
+                          total: items.total,
+                          items: [
+                            ...items.items.slice(0, index),
+                            { name: item.name, value: e.target.value },
+                            ...items.items.slice(index + 1),
+                          ],
+                        })
+                      }
+                    }}
+                    placeholder={item.value}
+                    className={styles.input}
+                  />
+                  <button
+                    className={styles.category_button}
+                    onClick={async () => {
+                      try {
+                        await itemService
+                          .editItem("/incomes", {
+                            name: item.name,
+                            value: item.value,
+                          })
+                          .then(() => setPosting(true))
+                      } catch (err) {
+                        setErrorLabel("Ошибка при попытке обновить категорию")
+                        console.log("Error:", err)
+                      }
+                    }}
+                  >
+                    <FaEdit size={30} />
+                  </button>
+                  <button
+                    className={styles.category_button}
+                    onClick={async () => {
+                      try {
+                        await itemService.deleteItem("/incomes", item.name).then(() => setPosting(true))
+                      } catch (err) {
+                        setErrorLabel("Ошибка при попытке удалить категорию")
+                        console.log("Error:", err)
+                      }
+                    }}
+                  >
+                    <MdDelete size={30} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-      <button className={styles.btn_exit} onClick={handleButtonClick}>
+      <button
+        className={styles.btn_exit}
+        onClick={() => {
+          authService.logout()
+        }}
+      >
         <MdOutlineExitToApp size={40} />
       </button>
     </>
