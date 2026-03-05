@@ -1,10 +1,18 @@
 import axiosInstance from './axiosInstance';
+
+import { jwtDecode } from "jwt-decode";
+
 import type { 
     LoginCredentials,
     AuthResponse,
     RegisterData,
     OAuth2LoginForm
 } from '../types/auth';
+interface JwtPayload {
+  sub: string
+  roles: string[]
+  exp: number
+}
 
 class AuthService {
 
@@ -66,6 +74,23 @@ class AuthService {
 
   isAuthenticated(): boolean {
     return !!localStorage.getItem('accessToken');
+  }
+
+  getUserRoles(): string[] {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return [];
+  
+    try {
+      const decoded: JwtPayload = jwtDecode<JwtPayload>(token);
+      return decoded.roles || [];
+    } catch {
+      return [];
+    }
+  }
+
+  hasRole(role: string): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes(role);
   }
 }
 

@@ -3,6 +3,7 @@ import { LoginPage } from "./pages/LoginPage"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { RegisterPage } from "./pages/RegisterPage"
 import { MainPage } from "./pages/MainPage"
+import { AdminMainPage } from "./pages/AdminManePage"
 import { ExpencesPage } from "./pages/ExpencesPage"
 import { IncomesPage } from "./pages/IncomesPage"
 import { BudgetsPage } from "./pages/BudgetsPage"
@@ -19,15 +20,23 @@ export const App = () => {
         <Route
           path="/main"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["user"]}>
               <MainPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin_main"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminMainPage />
             </ProtectedRoute>
           }
         />
         <Route
           path="/expences"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["user"]}>
               <ExpencesPage />
             </ProtectedRoute>
           }
@@ -35,7 +44,7 @@ export const App = () => {
         <Route
           path="/incomes"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["user"]}>
               <IncomesPage />
             </ProtectedRoute>
           }
@@ -43,7 +52,7 @@ export const App = () => {
         <Route
           path="/budgets"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["user"]}>
               <BudgetsPage />
             </ProtectedRoute>
           }
@@ -51,7 +60,7 @@ export const App = () => {
         <Route
           path="/categories"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["user"]}>
               <CategoriesPage />
             </ProtectedRoute>
           }

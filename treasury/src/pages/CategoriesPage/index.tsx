@@ -101,7 +101,7 @@ export const CategoriesPage = () => {
                           new_name: category,
                           type: "expenses",
                         })
-                        refetch()
+                        refetch().then(() => setErrorLabel(" "))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -115,7 +115,7 @@ export const CategoriesPage = () => {
                     onClick={async () => {
                       try {
                         await categoryService.deleteCategory({ name: category, type: "expenses" })
-                        refetch()
+                        refetch().then(() => setErrorLabel(" "))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)
@@ -169,7 +169,7 @@ export const CategoriesPage = () => {
                           new_name: category,
                           type: "incomes",
                         })
-                        refetch()
+                        refetch().then(() => setErrorLabel(" "))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -183,7 +183,7 @@ export const CategoriesPage = () => {
                     onClick={async () => {
                       try {
                         await categoryService.deleteCategory({ name: category, type: "incomes" })
-                        refetch()
+                        refetch().then(() => setErrorLabel(" "))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)

@@ -16,7 +16,11 @@ export const LoginPage = () => {
     if (credentials.password) {
       try {
         await authService.login(credentials);
-        window.location.href = "/main";
+        if (authService.hasRole("admin")) {
+          window.location.href = "/admin_main";
+        } else {
+          window.location.href = "/main";
+        }
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message.includes("422") ? "Неверные данные" : "");

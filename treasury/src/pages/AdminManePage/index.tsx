@@ -5,7 +5,7 @@ import { GiReceiveMoney, GiExpense } from "react-icons/gi"
 import { FaPiggyBank } from "react-icons/fa"
 import authService from "../../api/authService"
 
-export const MainPage = () => {
+export const AdminMainPage = () => {
   const navigate = useNavigate()
 
   const handleButtonClickExpences = () => {
@@ -26,6 +26,35 @@ export const MainPage = () => {
   return (
     <>
       <div className={styles.main}>
+
+      <div className={styles.item1}>
+          <GiExpense size={80} />
+
+          <h1>Статистика расходов</h1>
+          <h3>Траты всех пользователей</h3>
+          <button className={styles.btn1} onClick={handleButtonClickExpences}>
+            Посмотреть{" "}
+          </button>
+        </div>
+
+        <div className={styles.item2}>
+          <GiReceiveMoney size={80} />
+          <h1>Статистика доходов</h1>
+          <h3>Доходы всех пользователей</h3>
+          <button className={styles.btn2} onClick={handleButtonClickIncomes}>
+            Посмотреть
+          </button>
+        </div>
+
+        <div className={styles.item2}>
+          <MdCategory size={80} />
+          <h1>Изменить права</h1>
+          <h3>Можно добавить или отнять права администратора</h3>
+          <button className={styles.btn2} onClick={handleButtonClickCategories}>
+            Посмотреть
+          </button>
+        </div>
+
         <div className={styles.item1}>
           <GiExpense size={80} />
 
