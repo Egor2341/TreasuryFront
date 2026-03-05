@@ -8,6 +8,9 @@ import { ExpencesPage } from "./pages/ExpencesPage"
 import { IncomesPage } from "./pages/IncomesPage"
 import { BudgetsPage } from "./pages/BudgetsPage"
 import { CategoriesPage } from "./pages/CategoriesPage"
+import { AdminExpencesPage } from "./pages/AdminExpencesPage"
+import { AdminIncomesPage } from "./pages/AdminIncomesPage"
+import { AdminRightsPage } from "./pages/AdminRightsPage"
 import ProtectedRoute from "./security/ProtectedRoute"
 
 export const App = () => {
@@ -62,6 +65,30 @@ export const App = () => {
           element={
             <ProtectedRoute roles={["user"]}>
               <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin_expenses"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminExpencesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin_incomes"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminIncomesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin_rights"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminRightsPage />
             </ProtectedRoute>
           }
         />

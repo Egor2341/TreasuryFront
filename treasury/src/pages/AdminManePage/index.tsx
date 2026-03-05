@@ -8,6 +8,18 @@ import authService from "../../api/authService"
 export const AdminMainPage = () => {
   const navigate = useNavigate()
 
+  const handleButtonClickAExpences = () => {
+    navigate("/admin_expenses")
+  }
+
+  const handleButtonClickAIncomes = () => {
+    navigate("/admin_incomes")
+  }
+
+  const handleButtonClickARigts = () => {
+    navigate("/admin_rights")
+  }
+
   const handleButtonClickExpences = () => {
     navigate("/expences")
   }
@@ -32,7 +44,7 @@ export const AdminMainPage = () => {
 
           <h1>Статистика расходов</h1>
           <h3>Траты всех пользователей</h3>
-          <button className={styles.btn1} onClick={handleButtonClickExpences}>
+          <button className={styles.btn1} onClick={handleButtonClickAExpences}>
             Посмотреть{" "}
           </button>
         </div>
@@ -41,7 +53,7 @@ export const AdminMainPage = () => {
           <GiReceiveMoney size={80} />
           <h1>Статистика доходов</h1>
           <h3>Доходы всех пользователей</h3>
-          <button className={styles.btn2} onClick={handleButtonClickIncomes}>
+          <button className={styles.btn2} onClick={handleButtonClickAIncomes}>
             Посмотреть
           </button>
         </div>
@@ -50,7 +62,7 @@ export const AdminMainPage = () => {
           <MdCategory size={80} />
           <h1>Изменить права</h1>
           <h3>Можно добавить или отнять права администратора</h3>
-          <button className={styles.btn2} onClick={handleButtonClickCategories}>
+          <button className={styles.btn2} onClick={handleButtonClickARigts}>
             Посмотреть
           </button>
         </div>

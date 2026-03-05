@@ -2,7 +2,6 @@ import axiosInstance from './axiosInstance';
 import type { Stat, UserInfo, User } from '../types/stat';
 
 type dataType =  "e" | "i"
-type valueType =  "total" | "mean"
 const url = "/admin"
 
 class StatService {
@@ -28,7 +27,7 @@ class StatService {
     );
   }
 
-  async get_stat(type_data: dataType, type_value: valueType, year: number, month: string): Promise<Stat> {
+  async getStat(type_data: dataType, type_value: string, year: number, month: string): Promise<Stat> {
     const response = await axiosInstance.get<Stat>(url + "/stat",
       {
         params: {
