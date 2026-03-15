@@ -4,23 +4,33 @@ import { FaEdit } from "react-icons/fa"
 import { MdOutlineExitToApp } from "react-icons/md"
 import { useCategories } from "../../hooks/useCategories"
 import authService from "../../api/authService"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import categoryService from "../../api/categoryService"
+import { PaginationButtons } from "../../components/pagination"
 
 export const CategoriesPage = () => {
-  const { categories, loading, error, refetch } = useCategories()
+  const {
+    expenses,
+    eUuids,
+    eCount,
+    setECount,
+    setExpenses,
+    incomes,
+    iUuids,
+    iCount,
+    setICount,
+    setIncomes,
+    loading,
+    error,
+    fetchOneTypeCategories,
+  } = useCategories()
   const [ecategory, setEcategory] = useState<string>("")
   const [icategory, setIcategory] = useState<string>("")
   const [errorLabel, setErrorLabel] = useState<string>("")
-  const [expenses, setExpenses] = useState<string[]>(categories.expenses)
-  const [incomes, setIncomes] = useState<string[]>(categories.incomes)
-
-  useEffect(() => {
-    if (categories) {
-      setExpenses(categories.expenses)
-      setIncomes(categories.incomes)
-    }
-  }, [categories])
+  const [pageE, setPageE] = useState<number>(0)
+  const [pageI, setPageI] = useState<number>(0)
+  const [orderE, setOrderE] = useState<boolean>(true)
+  const [orderI, setOrderI] = useState<boolean>(true)
 
   if (loading) {
     return <div>Загрузка...</div>
@@ -30,16 +40,15 @@ export const CategoriesPage = () => {
     return <div style={{ color: "red" }}>{error}</div>
   }
 
-  const addCategoryLogic = async (type: "expenses" | "incomes") => {
+  const addCategoryLogic = async (name: string, type: "expenses" | "incomes", page: number, order: boolean) => {
     setErrorLabel("")
-    const cat = type === "expenses" ? ecategory : icategory
-    if (cat) {
+    if (name) {
       try {
-        await categoryService.addCategory({ name: cat, type: type }).then(() => {
+        await categoryService.addCategory({ name: name, type: type }).then(() => {
           setEcategory("")
           setIcategory("")
         })
-        refetch()
+        fetchOneType(type === "expenses" ? "e" : "i", page, order)
       } catch (err) {
         if (err instanceof Error) {
           if (err.message.includes("422")) {
@@ -52,6 +61,16 @@ export const CategoriesPage = () => {
       }
     } else {
       setErrorLabel("Нельзя добавить пустое значение")
+    }
+  }
+
+  const fetchOneType = async (type: "e" | "i", page: number, order: boolean) => {
+    setErrorLabel("")
+    try {
+      fetchOneTypeCategories(type, page, order)
+    } catch (err) {
+      setErrorLabel("Ошибка при попытке сортировки")
+      console.log("Error:", err)
     }
   }
 
@@ -75,11 +94,25 @@ export const CategoriesPage = () => {
               <button
                 className={styles.left_btn}
                 onClick={async () => {
-                  await addCategoryLogic("expenses")
+                  await addCategoryLogic(ecategory, "expenses", pageE, orderE)
+                  setECount(eCount + 1)
                 }}
               >
                 Добавить
               </button>
+
+              <select
+                className={styles.category_list}
+                onChange={(e) =>
+                  fetchOneType("e", pageE, e.target.value === "По возрастанию").then(() =>
+                    setOrderE(e.target.value === "По возрастанию")
+                  )
+                }
+              >
+                <option>Выберите</option>
+                <option>По возрастанию</option>
+                <option>По убыванию</option>
+              </select>
             </div>
             <div className={styles.scroll}>
               {expenses.map((category, index) => (
@@ -96,12 +129,12 @@ export const CategoriesPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        await categoryService.editCategory({
-                          old_name: categories.expenses[index],
-                          new_name: category,
-                          type: "expenses",
-                        })
-                        refetch().then(() => setErrorLabel(" "))
+                        await categoryService
+                          .editCategory({
+                            uuid: eUuids[index],
+                            name: category,
+                          })
+                          .then(() => fetchOneType("e", pageE, orderE).then(() => setErrorLabel(" ")))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -114,8 +147,10 @@ export const CategoriesPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        await categoryService.deleteCategory({ name: category, type: "expenses" })
-                        refetch().then(() => setErrorLabel(" "))
+                        await categoryService
+                          .deleteCategory(eUuids[index])
+                          .then(() => fetchOneType("e", pageE, orderE).then(() => setErrorLabel(" ")))
+                        setECount(eCount - 1)
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)
@@ -126,6 +161,20 @@ export const CategoriesPage = () => {
                   </button>
                 </div>
               ))}
+              <PaginationButtons
+                lb={() => {
+                  if (pageE > 0) {
+                    setPageE(pageE - 1)
+                    fetchOneType("e", pageE - 1, orderE).then(() => setErrorLabel(" "))
+                  }
+                }}
+                rb={() => {
+                  if (pageE < Math.ceil(eCount / 5) - 1) {
+                    setPageE(pageE + 1)
+                    fetchOneType("e", pageE + 1, orderE).then(() => setErrorLabel(" "))
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -143,11 +192,24 @@ export const CategoriesPage = () => {
               <button
                 className={styles.right_btn}
                 onClick={async () => {
-                  await addCategoryLogic("incomes")
+                  await addCategoryLogic(icategory, "incomes", pageI, orderI)
+                  setICount(iCount + 1)
                 }}
               >
                 Добавить
               </button>
+              <select
+                className={styles.category_list}
+                onChange={(e) =>
+                  fetchOneType("i", pageI, e.target.value === "По возрастанию").then(() =>
+                    setOrderI(e.target.value === "По возрастанию")
+                  )
+                }
+              >
+                <option>Выберите</option>
+                <option>По возрастанию</option>
+                <option>По убыванию</option>
+              </select>
             </div>
             <div className={styles.scroll}>
               {incomes.map((category, index) => (
@@ -165,11 +227,10 @@ export const CategoriesPage = () => {
                     onClick={async () => {
                       try {
                         await categoryService.editCategory({
-                          old_name: categories.incomes[index],
-                          new_name: category,
-                          type: "incomes",
+                          uuid: iUuids[index],
+                          name: category,
                         })
-                        refetch().then(() => setErrorLabel(" "))
+                        fetchOneType("i", pageI, orderI).then(() => setErrorLabel(" "))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -182,8 +243,9 @@ export const CategoriesPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        await categoryService.deleteCategory({ name: category, type: "incomes" })
-                        refetch().then(() => setErrorLabel(" "))
+                        await categoryService.deleteCategory(iUuids[index])
+                        fetchOneType("i", pageI, orderI).then(() => setErrorLabel(" "))
+                        setICount(iCount - 1)
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)
@@ -194,6 +256,20 @@ export const CategoriesPage = () => {
                   </button>
                 </div>
               ))}
+              <PaginationButtons
+                lb={() => {
+                  if (pageI > 0) {
+                    setPageI(pageI - 1)
+                    fetchOneType("i", pageI - 1, orderI).then(() => setErrorLabel(" "))
+                  }
+                }}
+                rb={() => {
+                  if (pageI < Math.ceil(iCount / 5) - 1) {
+                    setPageI(pageI + 1)
+                    fetchOneType("i", pageI + 1, orderI).then(() => setErrorLabel(" "))
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
