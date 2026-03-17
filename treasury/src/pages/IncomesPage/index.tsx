@@ -1,10 +1,11 @@
 import styles from "./style.module.css"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
-import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
+import { MdDelete } from "react-icons/md"
 import type { ListItems } from "../../types/item"
 import itemService from "../../api/itemService"
-import authService from "../../api/authService"
+import { PaginationButtons } from "../../components/pagination"
+import { Exit } from "../../components/exit"
 
 export const IncomesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -22,8 +23,8 @@ export const IncomesPage = () => {
   const [categories, setCategories] = useState<string[]>([""])
   const [categoryName, setCategoryName] = useState<string>("")
   const [value, setValue] = useState<string>("")
-  const [isPosting, setPosting] = useState<boolean>(false)
-  const [isSearch, setSearch] = useState<boolean>(false)
+  const [page, setPage] = useState<number>(0)
+  const [order, setOrder] = useState<boolean>(true)
 
   const handleValue = (value: string) => {
     if (/^\d*\.?\d{0,2}$/.test(value)) {
@@ -35,21 +36,10 @@ export const IncomesPage = () => {
     fetchItems()
   }, [])
 
-  useEffect(() => {
-    if (isPosting) {
-      update()
-    }
-  }, [isPosting])
-
-  const update = async () => {
+  const update = async (page: number, order: boolean) => {
     setErrorLabel("")
     try {
-      setItems(
-        await itemService.getItems("/incomes").then((v) => {
-          setPosting(false)
-          return v
-        })
-      )
+      setItems(await itemService.getItems("/expenses", page, order))
       setCategoryName("")
       setValue("")
     } catch (err) {
@@ -57,34 +47,21 @@ export const IncomesPage = () => {
     }
   }
 
-  const fetchSearch = useCallback(async () => {
+  const fetchSearch = async () => {
     setErrorLabel("")
     try {
-      setSearchResult(
-        (
-          await itemService.getSearch("/incomes", title, year, month).then((v) => {
-            setSearch(false)
-            return v
-          })
-        ).value
-      )
+      setSearchResult((await itemService.getSearch("/expenses", title, year, month)).value)
     } catch (err) {
       setErrorLabel("Поиск не удался")
       console.log("Error:", err)
     }
-  }, [title, year, month])
-
-  useEffect(() => {
-    if (isSearch) {
-      fetchSearch()
-    }
-  }, [isSearch, fetchSearch])
+  }
 
   const fetchItems = async () => {
     try {
       setLoading(true)
-      setItems(await itemService.getItems("/incomes"))
-      setCategories((await itemService.getCategories("/incomes")).categories)
+      setItems(await itemService.getItems("/expenses", 0, true))
+      setCategories((await itemService.getCategories("/expenses")).categories)
     } catch (err) {
       setError("Не удалось загрузить страницу")
       console.log("Error:", err)
@@ -161,7 +138,7 @@ export const IncomesPage = () => {
                 </select>
               </div>
             </div>
-            <button className={styles.btn} onClick={() => setSearch(true)}>
+            <button className={styles.btn} onClick={() => fetchSearch()}>
               Найти
             </button>
             <h2>Результат: {searchResult}</h2>
@@ -171,13 +148,11 @@ export const IncomesPage = () => {
             <div className={styles.add}>
               <select className={styles.list} value={categoryName} onChange={(e) => setCategoryName(e.target.value)}>
                 <option>Выберите</option>
-                {categories
-                  .filter((category) => !items.items.map((item) => item.name).includes(category))
-                  .map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
               </select>
               <input
                 type="text"
@@ -191,9 +166,9 @@ export const IncomesPage = () => {
                 onClick={async () => {
                   if (categoryName) {
                     try {
-                      await itemService
-                        .addItem("/incomes", { name: categoryName, value: value })
-                        .then(() => setPosting(true))
+                      await itemService.addItem("/incomes", { name: categoryName, value: value }).then(() => {
+                        update(page, order)
+                      })
                     } catch (err) {
                       console.log(err)
                       setErrorLabel("Ошибка при попытке добавить категорию")
@@ -208,6 +183,17 @@ export const IncomesPage = () => {
               <h1>Доходы за месяц</h1>
               <h1>{items.total}</h1>
             </div>
+            <select
+              onChange={(e) =>
+                update(page, e.target.value === "По возрастанию").then(() =>
+                  setOrder(e.target.value === "По возрастанию")
+                )
+              }
+            >
+              <option>Выберите</option>
+              <option>По возрастанию</option>
+              <option>По убыванию</option>
+            </select>
             <div className={styles.scroll}>
               {items.items.map((item, index) => (
                 <div key={index} className={styles.category}>
@@ -240,7 +226,7 @@ export const IncomesPage = () => {
                             name: item.name,
                             value: item.value,
                           })
-                          .then(() => setPosting(true))
+                          .then(() => update(page, order))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -264,18 +250,26 @@ export const IncomesPage = () => {
                   </button>
                 </div>
               ))}
+              <PaginationButtons
+                lb={() => {
+                  if (page > 0) {
+                    setPage(page - 1)
+                    update(page - 1, order).then(() => setErrorLabel(" "))
+                  }
+                }}
+                rb={() => {
+                  console.log(items)
+                  if (page < Math.ceil(categories.length / 7) - 1) {
+                    setPage(page + 1)
+                    update(page + 1, order).then(() => setErrorLabel(" "))
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
+      <Exit/>
     </>
   )
 }

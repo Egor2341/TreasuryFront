@@ -1,11 +1,11 @@
 import styles from "./style.module.css"
 import { useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
-import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
+import { MdDelete } from "react-icons/md"
 import type { ListItems } from "../../types/item"
 import itemService from "../../api/itemService"
-import authService from "../../api/authService"
 import { PaginationButtons } from "../../components/pagination"
+import { Exit } from "../../components/exit"
 
 export const ExpencesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -191,7 +191,6 @@ export const ExpencesPage = () => {
               <h1>{items.total}</h1>
             </div>
             <select
-              className={styles.category_list}
               onChange={(e) =>
                 update(page, e.target.value === "По возрастанию").then(() =>
                   setOrder(e.target.value === "По возрастанию")
@@ -277,14 +276,7 @@ export const ExpencesPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
+      <Exit/>
     </>
   )
 }
