@@ -1,13 +1,23 @@
 import axiosInstance from './axiosInstance';
-import type { Item, ItemRequest, ListItems, SearchItem } from '../types/item';
+import type { Item, ItemCategories, ItemRequest, ListItems, SearchItem } from '../types/item';
 
 type dataType =  "/expenses" | "/incomes"
 
 class ItemService {
   
-  async getItems(type: dataType): Promise<ListItems> {
-    const response = await axiosInstance.get<ListItems>(type);
+  async getItems(type: dataType, page: number, order: boolean): Promise<ListItems> {
+    const response = await axiosInstance.get<ListItems>(type, {
+      params: {
+        page,
+        order
+      }
+    });
     return response.data;
+  }
+
+  async getCategories(type: dataType): Promise<ItemCategories> {
+    const response = await axiosInstance.get<ItemCategories>(type + "/categories");
+    return response.data
   }
 
   async addItem(type: dataType, item: Item){ 

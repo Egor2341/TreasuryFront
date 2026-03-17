@@ -5,7 +5,6 @@ import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
 import type { ListItems } from "../../types/item"
 import itemService from "../../api/itemService"
 import authService from "../../api/authService"
-import categoryService from "../../api/categoryService"
 
 export const IncomesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -85,7 +84,7 @@ export const IncomesPage = () => {
     try {
       setLoading(true)
       setItems(await itemService.getItems("/incomes"))
-      setCategories((await categoryService.getCategories()).incomes)
+      setCategories((await itemService.getCategories("/incomes")).categories)
     } catch (err) {
       setError("Не удалось загрузить страницу")
       console.log("Error:", err)

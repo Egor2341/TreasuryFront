@@ -18,4 +18,8 @@ export interface ItemRequest{
     value: number;
 }
 
+export interface ItemCategories{
+    categories: string[];
+}
+
 

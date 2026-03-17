@@ -1,11 +1,11 @@
 import styles from "./style.module.css"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
 import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
 import type { ListItems } from "../../types/item"
 import itemService from "../../api/itemService"
 import authService from "../../api/authService"
-import categoryService from "../../api/categoryService"
+import { PaginationButtons } from "../../components/pagination"
 
 export const ExpencesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -23,8 +23,8 @@ export const ExpencesPage = () => {
   const [categories, setCategories] = useState<string[]>([""])
   const [categoryName, setCategoryName] = useState<string>("")
   const [value, setValue] = useState<string>("")
-  const [isPosting, setPosting] = useState<boolean>(false)
-  const [isSearch, setSearch] = useState<boolean>(false)
+  const [page, setPage] = useState<number>(0)
+  const [order, setOrder] = useState<boolean>(true)
 
   const handleValue = (value: string) => {
     if (/^\d*\.?\d{0,2}$/.test(value)) {
@@ -36,21 +36,10 @@ export const ExpencesPage = () => {
     fetchItems()
   }, [])
 
-  useEffect(() => {
-    if (isPosting) {
-      update()
-    }
-  }, [isPosting])
-
-  const update = async () => {
+  const update = async (page: number, order: boolean) => {
     setErrorLabel("")
     try {
-      setItems(
-        await itemService.getItems("/expenses").then((v) => {
-          setPosting(false)
-          return v
-        })
-      )
+      setItems(await itemService.getItems("/expenses", page, order))
       setCategoryName("")
       setValue("")
     } catch (err) {
@@ -58,34 +47,21 @@ export const ExpencesPage = () => {
     }
   }
 
-  const fetchSearch = useCallback(async () => {
+  const fetchSearch = async () => {
     setErrorLabel("")
     try {
-      setSearchResult(
-        (
-          await itemService.getSearch("/expenses", title, year, month).then((v) => {
-            setSearch(false)
-            return v
-          })
-        ).value
-      )
+      setSearchResult((await itemService.getSearch("/expenses", title, year, month)).value)
     } catch (err) {
       setErrorLabel("Поиск не удался")
       console.log("Error:", err)
     }
-  }, [title, year, month])
-
-  useEffect(() => {
-    if (isSearch) {
-      fetchSearch()
-    }
-  }, [isSearch, fetchSearch])
+  }
 
   const fetchItems = async () => {
     try {
       setLoading(true)
-      setItems(await itemService.getItems("/expenses"))
-      setCategories((await categoryService.getCategories()).expenses)
+      setItems(await itemService.getItems("/expenses", 0, true))
+      setCategories((await itemService.getCategories("/expenses")).categories)
     } catch (err) {
       setError("Не удалось загрузить страницу")
       console.log("Error:", err)
@@ -163,7 +139,12 @@ export const ExpencesPage = () => {
                 </select>
               </div>
             </div>
-            <button className={styles.btn} onClick={() => setSearch(true)}>
+            <button
+              className={styles.btn}
+              onClick={() => {
+                fetchSearch()
+              }}
+            >
               Найти
             </button>
             <h2>Результат: {searchResult}</h2>
@@ -171,14 +152,9 @@ export const ExpencesPage = () => {
 
           <div className={styles.info}>
             <div className={styles.add}>
-              <select
-                className={styles.list}
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              >
+              <select className={styles.list} value={categoryName} onChange={(e) => setCategoryName(e.target.value)}>
                 <option>Выберите</option>
                 {categories
-                  .filter((category) => !items.items.map((item) => item.name).includes(category))
                   .map((category, index) => (
                     <option key={index} value={category}>
                       {category}
@@ -197,9 +173,9 @@ export const ExpencesPage = () => {
                 onClick={async () => {
                   if (categoryName) {
                     try {
-                      await itemService
-                        .addItem("/expenses", { name: categoryName, value: value })
-                        .then(() => setPosting(true))
+                      await itemService.addItem("/expenses", { name: categoryName, value: value }).then(() => {
+                        update(page, order)
+                      })
                     } catch (err) {
                       console.log(err)
                       setErrorLabel("Ошибка при попытке добавить категорию")
@@ -214,6 +190,18 @@ export const ExpencesPage = () => {
               <h1>Расходы за месяц</h1>
               <h1>{items.total}</h1>
             </div>
+            <select
+              className={styles.category_list}
+              onChange={(e) =>
+                update(page, e.target.value === "По возрастанию").then(() =>
+                  setOrder(e.target.value === "По возрастанию")
+                )
+              }
+            >
+              <option>Выберите</option>
+              <option>По возрастанию</option>
+              <option>По убыванию</option>
+            </select>
             <div className={styles.scroll}>
               {items.items.map((item, index) => (
                 <div key={index} className={styles.category}>
@@ -246,7 +234,7 @@ export const ExpencesPage = () => {
                             name: item.name,
                             value: item.value,
                           })
-                          .then(() => setPosting(true))
+                          .then(() => update(page, order))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке обновить категорию")
                         console.log("Error:", err)
@@ -259,7 +247,7 @@ export const ExpencesPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        await itemService.deleteItem("/expenses", item.name).then(() => setPosting(true))
+                        await itemService.deleteItem("/expenses", item.name).then(() => update(page, order))
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке удалить категорию")
                         console.log("Error:", err)
@@ -270,6 +258,21 @@ export const ExpencesPage = () => {
                   </button>
                 </div>
               ))}
+               <PaginationButtons
+                              lb={() => {
+                                if (page > 0) {
+                                  setPage(page - 1)
+                                  update(page - 1, order).then(() => setErrorLabel(" "))
+                                }
+                              }}
+                              rb={() => {
+                                console.log(items)
+                                if (page < Math.ceil(categories.length / 7) - 1) {
+                                  setPage(page + 1)
+                                  update(page + 1, order).then(() => setErrorLabel(" "))
+                                }
+                              }}
+                            />
             </div>
           </div>
         </div>
