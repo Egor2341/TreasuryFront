@@ -11,6 +11,7 @@ import { CategoriesPage } from "./pages/CategoriesPage"
 import { AdminExpencesPage } from "./pages/AdminExpencesPage"
 import { AdminIncomesPage } from "./pages/AdminIncomesPage"
 import { AdminRightsPage } from "./pages/AdminRightsPage"
+import { ReceiptsPage } from "./pages/ReceiptsPage"
 import ProtectedRoute from "./security/ProtectedRoute"
 
 export const App = () => {
@@ -89,6 +90,14 @@ export const App = () => {
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminRightsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receipts"
+          element={
+            <ProtectedRoute roles={["user"]}>
+              <ReceiptsPage />
             </ProtectedRoute>
           }
         />

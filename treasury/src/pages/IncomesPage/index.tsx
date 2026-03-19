@@ -258,7 +258,6 @@ export const IncomesPage = () => {
                   }
                 }}
                 rb={() => {
-                  console.log(items)
                   if (page < Math.ceil(categories.length / 7) - 1) {
                     setPage(page + 1)
                     update(page + 1, order).then(() => setErrorLabel(" "))

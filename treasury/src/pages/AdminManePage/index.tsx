@@ -1,9 +1,9 @@
 import styles from "./style.module.css"
 import { useNavigate } from "react-router-dom"
-import { MdOutlineExitToApp, MdCategory } from "react-icons/md"
+import { MdCategory } from "react-icons/md"
 import { GiReceiveMoney, GiExpense } from "react-icons/gi"
 import { FaPiggyBank } from "react-icons/fa"
-import authService from "../../api/authService"
+import { Exit } from "../../components/exit"
 
 export const AdminMainPage = () => {
   const navigate = useNavigate()
@@ -34,12 +34,14 @@ export const AdminMainPage = () => {
   const handleButtonClickBudgets = () => {
     navigate("/budgets")
   }
+  const handleButtonClickReceipts = () => {
+    navigate("/receipts")
+  }
 
   return (
     <>
       <div className={styles.main}>
-
-      <div className={styles.item1}>
+        <div className={styles.item1}>
           <GiExpense size={80} />
 
           <h1>Статистика расходов</h1>
@@ -103,19 +105,17 @@ export const AdminMainPage = () => {
             Посмотреть
           </button>
         </div>
-
-        
+        <div className={styles.item2}>
+          <FaPiggyBank size={80} />
+          <h1>Чеки</h1>
+          <h3>Сохраните изображение чеков</h3>
+          <button className={styles.btn2} onClick={handleButtonClickReceipts}>
+            Посмотреть
+          </button>
+        </div>
       </div>
 
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
-      
+      <Exit />
     </>
   )
 }
