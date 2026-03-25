@@ -5,6 +5,7 @@ import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
 import statService from "../../api/statService"
 import authService from "../../api/authService"
 import type { UserInfo } from "../../types/stat"
+import { Title } from "../../components/title_navigate"
 
 export const AdminRightsPage = () => {
   const [items, setItems] = useState<UserInfo[]>([])
@@ -38,7 +39,6 @@ export const AdminRightsPage = () => {
     }
   }
 
-
   const fetchItems = async () => {
     try {
       setLoading(true)
@@ -62,11 +62,10 @@ export const AdminRightsPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Пользователи</h1>
+        <Title title={"Пользователи"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.info}>
-            
             <div className={styles.scroll}>
               {items.map((item, index) => (
                 <div key={index} className={styles.category}>
@@ -77,10 +76,8 @@ export const AdminRightsPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        if (!item.roles.includes("admin")){
-                          await statService
-                            .addAdmin(item.email)
-                            .then(() => setPosting(true))
+                        if (!item.roles.includes("admin")) {
+                          await statService.addAdmin(item.email).then(() => setPosting(true))
                         }
                       } catch (err) {
                         setErrorLabel("Ошибка при попытке добавить права")
@@ -95,7 +92,7 @@ export const AdminRightsPage = () => {
                     className={styles.category_button}
                     onClick={async () => {
                       try {
-                        if (item.roles.includes("admin")){
+                        if (item.roles.includes("admin")) {
                           await statService.deleteAdmin(item.email).then(() => setPosting(true))
                         }
                       } catch (err) {
@@ -112,14 +109,6 @@ export const AdminRightsPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
     </>
   )
 }

@@ -66,11 +66,11 @@ export const MainPage = () => {
           </button>
         </div>
 
-        <div className={styles.item2}>
+        <div className={styles.item1}>
           <FaPiggyBank size={80} />
           <h1>Чеки</h1>
           <h3>Сохраните изображение чеков</h3>
-          <button className={styles.btn2} onClick={handleButtonClickReceipts}>
+          <button className={styles.btn1} onClick={handleButtonClickReceipts}>
             Посмотреть
           </button>
         </div>

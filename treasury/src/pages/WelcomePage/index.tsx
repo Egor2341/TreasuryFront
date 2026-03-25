@@ -39,7 +39,7 @@ export const WelcomePage = () => {
         </div>
       </div>
       <div className={style.rightPart}>
-        <img className={style.dragon} src="/src/assets/dragon.png" alt="Dragon" />
+        <img className={style.dragon} src="/src/assets/dragon.png" alt="Черный дракон лежит на золоте" />
       </div>
     </>
   )

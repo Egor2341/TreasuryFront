@@ -1,8 +1,7 @@
 import styles from "./style.module.css"
 import { useCallback, useEffect, useState } from "react"
-import { MdOutlineExitToApp } from "react-icons/md"
 import statService from "../../api/statService"
-import authService from "../../api/authService"
+import { Title } from "../../components/title_navigate"
 
 export const AdminExpencesPage = () => {
 
@@ -63,7 +62,7 @@ export const AdminExpencesPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Расходы всех пользователей</h1>
+        <Title title="Расходы пользователей"/>
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>
@@ -129,14 +128,7 @@ export const AdminExpencesPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
+      
     </>
   )
 }

@@ -7,6 +7,8 @@ import authService from "../../api/authService"
 import { useState } from "react"
 import categoryService from "../../api/categoryService"
 import { PaginationButtons } from "../../components/pagination"
+import { Exit } from "../../components/exit"
+import { Title } from "../../components/title_navigate"
 
 export const CategoriesPage = () => {
   const {
@@ -77,7 +79,7 @@ export const CategoriesPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Категории</h1>
+        <Title title={"Категории"}/>
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.part}>
@@ -274,14 +276,6 @@ export const CategoriesPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
     </>
   )
 }

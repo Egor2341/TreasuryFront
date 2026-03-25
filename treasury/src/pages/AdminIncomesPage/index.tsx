@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react"
 import { MdOutlineExitToApp } from "react-icons/md"
 import statService from "../../api/statService"
 import authService from "../../api/authService"
+import { Title } from "../../components/title_navigate"
 
 export const AdminIncomesPage = () => {
-
   const [year, setYear] = useState(0)
   const [infoType, setInfoType] = useState("")
   const [month, setMonth] = useState("")
@@ -14,7 +14,6 @@ export const AdminIncomesPage = () => {
   const [searchResult, setSearchResult] = useState("")
   const [errorLabel, setErrorLabel] = useState<string>("")
   const [isSearch, setSearch] = useState<boolean>(false)
-
 
   useEffect(() => {
     fetchItems()
@@ -63,7 +62,7 @@ export const AdminIncomesPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Доходы всех пользователей</h1>
+        <Title title="Доходы пользователей" />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>
@@ -121,7 +120,6 @@ export const AdminIncomesPage = () => {
             <button className={styles.btn} onClick={() => setSearch(true)}>
               Найти
             </button>
-            
           </div>
 
           <div className={styles.info}>
@@ -129,14 +127,6 @@ export const AdminIncomesPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
     </>
   )
 }

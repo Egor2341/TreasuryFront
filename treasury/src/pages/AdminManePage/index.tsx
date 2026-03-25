@@ -114,7 +114,6 @@ export const AdminMainPage = () => {
           </button>
         </div>
       </div>
-
       <Exit />
     </>
   )

@@ -6,6 +6,7 @@ import type { ListItems } from "../../types/item"
 import itemService from "../../api/itemService"
 import { PaginationButtons } from "../../components/pagination"
 import { Exit } from "../../components/exit"
+import { Title } from "../../components/title_navigate"
 
 export const IncomesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -39,7 +40,7 @@ export const IncomesPage = () => {
   const update = async (page: number, order: boolean) => {
     setErrorLabel("")
     try {
-      setItems(await itemService.getItems("/expenses", page, order))
+      setItems(await itemService.getItems("/incomes", page, order))
       setCategoryName("")
       setValue("")
     } catch (err) {
@@ -50,7 +51,7 @@ export const IncomesPage = () => {
   const fetchSearch = async () => {
     setErrorLabel("")
     try {
-      setSearchResult((await itemService.getSearch("/expenses", title, year, month)).value)
+      setSearchResult((await itemService.getSearch("/incomes", title, year, month)).value)
     } catch (err) {
       setErrorLabel("Поиск не удался")
       console.log("Error:", err)
@@ -60,8 +61,8 @@ export const IncomesPage = () => {
   const fetchItems = async () => {
     try {
       setLoading(true)
-      setItems(await itemService.getItems("/expenses", 0, true))
-      setCategories((await itemService.getCategories("/expenses")).categories)
+      setItems(await itemService.getItems("/incomes", 0, true))
+      setCategories((await itemService.getCategories("/incomes")).categories)
     } catch (err) {
       setError("Не удалось загрузить страницу")
       console.log("Error:", err)
@@ -81,7 +82,7 @@ export const IncomesPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Доходы</h1>
+        <Title title={"Доходы"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>
@@ -268,7 +269,6 @@ export const IncomesPage = () => {
           </div>
         </div>
       </div>
-      <Exit/>
     </>
   )
 }

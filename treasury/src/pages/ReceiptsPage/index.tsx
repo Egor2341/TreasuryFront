@@ -6,6 +6,7 @@ import receiptService from "../../api/receiptService"
 import { Exit } from "../../components/exit"
 import { PaginationButtons } from "../../components/pagination"
 import axios from "axios"
+import { Title } from "../../components/title_navigate"
 
 export const ReceiptsPage = () => {
   const [loading, setLoading] = useState(true)
@@ -110,7 +111,7 @@ export const ReceiptsPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Чеки</h1>
+        <Title title={"Чеки"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.info}>
@@ -156,7 +157,6 @@ export const ReceiptsPage = () => {
           </div>
         </div>
       </div>
-      <Exit />
     </>
   )
 }

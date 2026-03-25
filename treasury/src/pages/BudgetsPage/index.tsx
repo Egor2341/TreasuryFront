@@ -5,6 +5,7 @@ import { MdOutlineExitToApp } from "react-icons/md"
 import type { Budget, ListBudgets, budgetType } from "../../types/budget"
 import budgetService from "../../api/budgetService"
 import authService from "../../api/authService"
+import { Title } from "../../components/title_navigate"
 
 export const BudgetsPage = () => {
   const monthNames = useMemo(
@@ -149,7 +150,7 @@ export const BudgetsPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Бюджет</h1>
+        <Title title={"Бюджет"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.part}>
@@ -234,14 +235,6 @@ export const BudgetsPage = () => {
           </div>
         </div>
       </div>
-      <button
-        className={styles.btn_exit}
-        onClick={() => {
-          authService.logout()
-        }}
-      >
-        <MdOutlineExitToApp size={40} />
-      </button>
     </>
   )
 }

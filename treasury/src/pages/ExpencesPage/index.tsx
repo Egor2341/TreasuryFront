@@ -81,7 +81,7 @@ export const ExpencesPage = () => {
   return (
     <>
       <div className={styles.page}>
-        <h1>Расходы</h1>
+        <title title={"Расходы"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>
@@ -154,12 +154,11 @@ export const ExpencesPage = () => {
             <div className={styles.add}>
               <select className={styles.list} value={categoryName} onChange={(e) => setCategoryName(e.target.value)}>
                 <option>Выберите</option>
-                {categories
-                  .map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
               </select>
               <input
                 type="text"
@@ -257,26 +256,25 @@ export const ExpencesPage = () => {
                   </button>
                 </div>
               ))}
-               <PaginationButtons
-                              lb={() => {
-                                if (page > 0) {
-                                  setPage(page - 1)
-                                  update(page - 1, order).then(() => setErrorLabel(" "))
-                                }
-                              }}
-                              rb={() => {
-                                console.log(items)
-                                if (page < Math.ceil(categories.length / 7) - 1) {
-                                  setPage(page + 1)
-                                  update(page + 1, order).then(() => setErrorLabel(" "))
-                                }
-                              }}
-                            />
+              <PaginationButtons
+                lb={() => {
+                  if (page > 0) {
+                    setPage(page - 1)
+                    update(page - 1, order).then(() => setErrorLabel(" "))
+                  }
+                }}
+                rb={() => {
+                  console.log(items)
+                  if (page < Math.ceil(categories.length / 7) - 1) {
+                    setPage(page + 1)
+                    update(page + 1, order).then(() => setErrorLabel(" "))
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
       </div>
-      <Exit/>
     </>
   )
 }
