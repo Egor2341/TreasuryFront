@@ -2,10 +2,11 @@ import styles from "./style.module.css"
 import { useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
 import { MdDelete } from "react-icons/md"
-import type { ListItems } from "../../types/item"
+import type { ListItems, Item } from "../../types/item"
 import itemService from "../../api/itemService"
 import { PaginationButtons } from "../../components/pagination"
-import { Exit } from "../../components/exit"
+import { ExpensesJsonLd } from "../../components/ExpensesJsonLd"
+import { Title } from "../../components/title_navigate"
 
 export const ExpencesPage = () => {
   const [items, setItems] = useState<ListItems>({
@@ -80,8 +81,9 @@ export const ExpencesPage = () => {
 
   return (
     <>
+      <ExpensesJsonLd item={{name: "Бензин", value: "10000"}}/>
       <div className={styles.page}>
-        <title title={"Расходы"} />
+        <Title title={"Расходы"} />
         <div style={{ color: "red" }}>{errorLabel}</div>
         <div className={styles.main}>
           <div className={styles.search}>

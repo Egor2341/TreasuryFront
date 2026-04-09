@@ -9,15 +9,15 @@ export const AdminMainPage = () => {
   const navigate = useNavigate()
 
   const handleButtonClickAExpences = () => {
-    navigate("/admin_expenses")
+    navigate("/admin/expenses")
   }
 
   const handleButtonClickAIncomes = () => {
-    navigate("/admin_incomes")
+    navigate("/admin/incomes")
   }
 
   const handleButtonClickARigts = () => {
-    navigate("/admin_rights")
+    navigate("/admin/rights")
   }
 
   const handleButtonClickExpences = () => {

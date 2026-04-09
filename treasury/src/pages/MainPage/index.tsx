@@ -25,6 +25,9 @@ export const MainPage = () => {
   const handleButtonClickReceipts = () => {
     navigate("/receipts")
   }
+  const handleButtonClickInfo = () => {
+    navigate("/info")
+  }
 
   return (
     <>
@@ -71,6 +74,15 @@ export const MainPage = () => {
           <h1>Чеки</h1>
           <h3>Сохраните изображение чеков</h3>
           <button className={styles.btn1} onClick={handleButtonClickReceipts}>
+            Посмотреть
+          </button>
+        </div>
+
+        <div className={styles.item2}>
+          <MdCategory size={80} />
+          <h1>Курс валют</h1>
+          <h3>Узнайте курс валют</h3>
+          <button className={styles.btn2} onClick={handleButtonClickInfo}>
             Посмотреть
           </button>
         </div>

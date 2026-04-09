@@ -17,7 +17,7 @@ export const LoginPage = () => {
       try {
         await authService.login(credentials);
         if (authService.hasRole("admin")) {
-          window.location.href = "/admin_main";
+          window.location.href = "/admin/main";
         } else {
           window.location.href = "/main";
         }

@@ -1,9 +1,8 @@
 import styles from "./style.module.css"
 import { useEffect, useState } from "react"
 import { FaEdit } from "react-icons/fa"
-import { MdOutlineExitToApp, MdDelete } from "react-icons/md"
+import { MdDelete } from "react-icons/md"
 import statService from "../../api/statService"
-import authService from "../../api/authService"
 import type { UserInfo } from "../../types/stat"
 import { Title } from "../../components/title_navigate"
 

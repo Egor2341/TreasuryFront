@@ -3,21 +3,27 @@ import { FaCoins } from "react-icons/fa"
 import { RiSafe3Line } from "react-icons/ri"
 import { CgLogIn } from "react-icons/cg"
 import style from "./style.module.css"
+import { Helmet } from "react-helmet-async"
 
 export const WelcomePage = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-      const handleButtonClick = () => {
-        navigate('/login');
-      };
-  
+  const handleButtonClick = () => {
+    navigate("/login")
+  }
+
   return (
     <>
+      <Helmet>
+        <title>Управление личными финансами</title>
+        <meta property="og:title" content="Управление личными финансами" />
+        <meta name="description" content={"Ведите учет расходов и доходов, сохраняйте чеки"} />
+      </Helmet>
       <div className={style.leftPart}>
         <h1 className={style.header}>Сокровищница</h1>
         <span className={style.slogan}>Деньги любят счет</span>
         <div className={style.coins}>
-          <span ></span>
+          <span></span>
           <FaCoins color="#D97706" />
           <span></span>
         </div>

@@ -13,6 +13,7 @@ import { AdminIncomesPage } from "./pages/AdminIncomesPage"
 import { AdminRightsPage } from "./pages/AdminRightsPage"
 import { ReceiptsPage } from "./pages/ReceiptsPage"
 import ProtectedRoute from "./security/ProtectedRoute"
+import { InfoPage } from "./pages/InfoPage"
 
 export const App = () => {
   return (
@@ -30,7 +31,7 @@ export const App = () => {
           }
         />
         <Route
-          path="/admin_main"
+          path="/admin/main"
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminMainPage />
@@ -70,7 +71,7 @@ export const App = () => {
           }
         />
         <Route
-          path="/admin_expenses"
+          path="/admin/expenses"
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminExpencesPage />
@@ -78,7 +79,7 @@ export const App = () => {
           }
         />
         <Route
-          path="/admin_incomes"
+          path="/admin/incomes"
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminIncomesPage />
@@ -86,7 +87,7 @@ export const App = () => {
           }
         />
         <Route
-          path="/admin_rights"
+          path="/admin/rights"
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminRightsPage />
@@ -98,6 +99,14 @@ export const App = () => {
           element={
             <ProtectedRoute roles={["user"]}>
               <ReceiptsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/info"
+          element={
+            <ProtectedRoute roles={["user"]}>
+              <InfoPage />
             </ProtectedRoute>
           }
         />

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import statService from "../../api/statService"
 import { Title } from "../../components/title_navigate"
 
+
 export const AdminExpencesPage = () => {
 
   const [year, setYear] = useState(0)
